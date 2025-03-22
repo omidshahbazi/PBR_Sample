@@ -19,4 +19,8 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\LightingOnly.fs" />
+    <None Include="Shaders\LightingOnly.vs" />
+  </ItemGroup>
 </Project>

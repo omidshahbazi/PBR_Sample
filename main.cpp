@@ -37,7 +37,7 @@ const unsigned int SCR_WIDTH = 2560;
 const unsigned int SCR_HEIGHT = 1440;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 25.0f));
 float lastX = 800.0f / 2.0;
 float lastY = 600.0 / 2.0;
 bool firstMouse = true;
@@ -87,7 +87,7 @@ int main()
 	Shader shader("Shaders/LightingOnly.vs", "Shaders/LightingOnly.fs");
 
 	shader.use();
-	shader.setVec3("albedo", .5f, 0.0f, 0.0f);
+	shader.setVec3("albedo", .5f, 0.3f, 0.0f);
 	shader.setFloat("ao", 1.0f);
 
 	// lights
@@ -168,7 +168,7 @@ int main()
 			glm::vec3 newPos = lightPositions[i] + glm::vec3(sin(time * 5.0) * 5.0, cos(time * 5.0) * 5.0, 0.0);
 			glm::vec3 newCol = glm::vec3(sin(time) * intensity, 0, cos(time) * intensity);
 			//newPos = lightPositions[i];
-			//newCol = lightColors[i];
+			newCol = lightColors[i];
 			shader.setVec3("lightPositions[" + std::to_string(i) + "]", newPos);
 			shader.setVec3("lightColors[" + std::to_string(i) + "]", newCol);
 
@@ -177,7 +177,7 @@ int main()
 			model = glm::scale(model, glm::vec3(0.5f));
 			shader.setMat4("model", model);
 			shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
-			renderSphere();
+			//renderSphere();
 		}
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
