@@ -14,21 +14,7 @@
 
 #pragma comment( lib, "glfw3.lib")
 #pragma comment( lib, "opengl32.lib")
-#pragma comment( lib, "assimp.lib")
-#pragma comment( lib, "freetype.lib")
-#pragma comment( lib, "irrKlang.lib")
-#pragma comment( lib, "STB_IMAGE.lib")
 #pragma comment( lib, "GLAD.lib")
-#pragma comment( lib, "kernel32.lib")
-#pragma comment( lib, "user32.lib")
-#pragma comment( lib, "gdi32.lib")
-#pragma comment( lib, "winspool.lib")
-#pragma comment( lib, "shell32.lib")
-#pragma comment( lib, "ole32.lib")
-#pragma comment( lib, "oleaut32.lib")
-#pragma comment( lib, "uuid.lib")
-#pragma comment( lib, "comdlg32.lib")
-#pragma comment( lib, "advapi32.lib")
 
 void renderSphere();
 
@@ -48,16 +34,12 @@ float lastFrame = 0.0f;
 
 int main()
 {
-	// glfw: initialize and configure
-	// ------------------------------
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// glfw window creation
-	// --------------------
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "PBR Test", NULL, NULL);
 	glfwMakeContextCurrent(window);
 	if (window == NULL)
@@ -67,31 +49,22 @@ int main()
 		return -1;
 	}
 
-	// tell GLFW to capture our mouse
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	// glad: load all OpenGL function pointers
-	// ---------------------------------------
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
 
-	// configure global opengl state
-	// -----------------------------
 	glEnable(GL_DEPTH_TEST);
 
-	// build and compile shaders
-	// -------------------------
 	Shader shader("Shaders/LightingOnly.vs", "Shaders/LightingOnly.fs");
 
 	shader.use();
 	shader.setVec3("albedo", .5f, 0.3f, 0.0f);
 	shader.setFloat("ao", 1.0f);
 
-	// lights
-	// ------
 	glm::vec3 lightPositions[] = {
 		glm::vec3(-10.0f,  10.0f, 10.0f),
 		glm::vec3(10.0f,  10.0f, 10.0f),
@@ -108,24 +81,16 @@ int main()
 	int nrColumns = 7;
 	float spacing = 2.5;
 
-	// initialize static shader uniforms before rendering
-	// --------------------------------------------------
 	glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 	shader.use();
 	shader.setMat4("projection", projection);
 
-	// render loop
-	// -----------
 	while (!glfwWindowShouldClose(window))
 	{
-		// per-frame time logic
-		// --------------------
 		float currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		// render
-		// ------
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -134,15 +99,13 @@ int main()
 		shader.setMat4("view", view);
 		shader.setVec3("camPos", camera.Position);
 
-		// render rows*column number of spheres with varying metallic/roughness values scaled by rows and columns respectively
 		glm::mat4 model = glm::mat4(1.0f);
 		for (int row = 0; row < nrRows; ++row)
 		{
 			shader.setFloat("metallic", (float)row / (float)nrRows);
 			for (int col = 0; col < nrColumns; ++col)
 			{
-				// we clamp the roughness to 0.05 - 1.0 as perfectly smooth surfaces (roughness of 0.0) tend to look a bit off
-				// on direct lighting.
+				// clamp the roughness to 0.05 - 1.0 as perfectly smooth surfaces (roughness of 0.0) looks a bit off
 				shader.setFloat("roughness", glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
 
 				model = glm::mat4(1.0f);
@@ -157,9 +120,6 @@ int main()
 			}
 		}
 
-		// render light source (simply re-render sphere at light positions)
-		// this looks a bit off as we use the same shader, but it'll make their positions obvious and 
-		// keeps the codeprint small.
 		for (unsigned int i = 0; i < sizeof(lightPositions) / sizeof(lightPositions[0]); ++i)
 		{
 			const float time = glfwGetTime() * 0.2;
@@ -180,20 +140,14 @@ int main()
 			//renderSphere();
 		}
 
-		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-		// -------------------------------------------------------------------------------
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
-	// glfw: terminate, clearing all previously allocated GLFW resources.
-	// ------------------------------------------------------------------
 	glfwTerminate();
 	return 0;
 }
 
-// renders (and builds at first invocation) a sphere
-// -------------------------------------------------
 unsigned int sphereVAO = 0;
 unsigned int indexCount;
 void renderSphere()
